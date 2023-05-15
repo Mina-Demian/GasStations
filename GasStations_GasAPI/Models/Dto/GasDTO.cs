@@ -1,0 +1,14 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GasStations_GasAPI.Models.Dto
+{
+    public class GasDTO
+    {
+        public int Id { get; set; }
+        [Required]
+        [MaxLength(30)]
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public int Number_of_Pumps { get; set; }
+    }
+}
