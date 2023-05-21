@@ -10,10 +10,19 @@ namespace GasStations_GasAPI.Controllers
     [ApiController]
     public class GasAPIController : ControllerBase
     {
+        private readonly ILogger<GasAPIController> _logger;
+
+        public GasAPIController(ILogger<GasAPIController> logger)
+        {
+            _logger = logger;
+        }
+
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult <IEnumerable<GasDTO>> GetGasStations()
         {
+            _logger.LogInformation("Getting all the Gas Stations");
             return Ok(GasStore.GasList);
         }
 
@@ -25,6 +34,7 @@ namespace GasStations_GasAPI.Controllers
         {
             if (id == 0)
             {
+                _logger.LogError("Get Gas Station Error with ID of " + id);
                 return BadRequest();
             }
             var GasStation = GasStore.GasList.FirstOrDefault(u => u.Id == id);
