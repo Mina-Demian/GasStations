@@ -10,6 +10,14 @@ namespace GasStations_GasAPI.Controllers
     [ApiController]
     public class GasAPIController : ControllerBase
     {
+
+        private readonly ApplicationDbContext _db;
+        public GasAPIController(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+
+
         private readonly ILogger<GasAPIController> _logger;
 
         public GasAPIController(ILogger<GasAPIController> logger)
@@ -23,7 +31,7 @@ namespace GasStations_GasAPI.Controllers
         public ActionResult <IEnumerable<GasDTO>> GetGasStations()
         {
             _logger.LogInformation("Getting all the Gas Stations");
-            return Ok(GasStore.GasList);
+            return Ok(_db.GasStations.ToList());
         }
 
         [HttpGet("{id:int}", Name = "GetGasStation")]
@@ -37,7 +45,7 @@ namespace GasStations_GasAPI.Controllers
                 _logger.LogError("Get Gas Station Error with ID of " + id);
                 return BadRequest();
             }
-            var GasStation = GasStore.GasList.FirstOrDefault(u => u.Id == id);
+            var GasStation = _db.GasStations.FirstOrDefault(u => u.Id == id);
             if (GasStation == null)
             {
                 return NotFound();
@@ -52,7 +60,7 @@ namespace GasStations_GasAPI.Controllers
 
         public ActionResult <GasDTO> CreateGasStation([FromBody] GasDTO gasDTO)
         {
-            if (GasStore.GasList.FirstOrDefault(u => u.Name.ToLower() == gasDTO.Name.ToLower()) != null)
+            if (_db.GasStations.FirstOrDefault(u => u.Name.ToLower() == gasDTO.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("CustomError", "Gas Station Already Exists in the Area!");
                 return BadRequest(ModelState);
@@ -65,8 +73,19 @@ namespace GasStations_GasAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            gasDTO.Id = GasStore.GasList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-            GasStore.GasList.Add(gasDTO);
+
+            Gas model = new()
+            {
+                Id = gasDTO.Id,
+                Name = gasDTO.Name,
+                Address = gasDTO.Address,
+                Number_of_Pumps = gasDTO.Number_of_Pumps,
+                Price = gasDTO.Price,
+                Purity = gasDTO.Purity
+            };
+
+            _db.GasStations.Add(model);
+            _db.SaveChanges();
 
             return CreatedAtRoute("GetGasStation", new { id = gasDTO.Id }, gasDTO);
         }
@@ -81,12 +100,13 @@ namespace GasStations_GasAPI.Controllers
             {
                 return BadRequest();
             }
-            var gasStation = GasStore.GasList.FirstOrDefault(u => u.Id == id);
+            var gasStation = _db.GasStations.FirstOrDefault(u => u.Id == id);
             if (gasStation == null)
             {
                 return NotFound();
             }
-            GasStore.GasList.Remove(gasStation);
+            _db.GasStations.Remove(gasStation);
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -99,11 +119,20 @@ namespace GasStations_GasAPI.Controllers
             {
                 return BadRequest();
             }
-            var gasStation = GasStore.GasList.FirstOrDefault(u => u.Id == id);
-            gasStation.Name = gasDTO.Name;
-            gasStation.Address = gasDTO.Address;
-            gasStation.Number_of_Pumps = gasDTO.Number_of_Pumps;
-            
+
+            Gas model = new()
+            {
+                Id = gasDTO.Id,
+                Name = gasDTO.Name,
+                Address = gasDTO.Address,
+                Number_of_Pumps = gasDTO.Number_of_Pumps,
+                Price = gasDTO.Price,
+                Purity = gasDTO.Purity
+            };
+
+            _db.GasStations.Update(model);
+            _db.SaveChanges();
+
             return NoContent();
         }
 
@@ -117,12 +146,38 @@ namespace GasStations_GasAPI.Controllers
             {
                 return BadRequest();
             }
-            var gasStation = GasStore.GasList.FirstOrDefault(u => u.Id == id);
+            var gasStation = _db.GasStations.FirstOrDefault(u => u.Id == id);
+
+            GasDTO gasDTO = new()
+            {
+                Id = gasStation.Id,
+                Name = gasStation.Name,
+                Address = gasStation.Address,
+                Number_of_Pumps = gasStation.Number_of_Pumps,
+                Price = gasStation.Price,
+                Purity = gasStation.Purity
+            };
+
+
             if (gasStation == null)
             {
                 return BadRequest();
             }
-            patchDTO.ApplyTo(gasStation, ModelState);
+            patchDTO.ApplyTo(gasDTO, ModelState);
+
+            Gas model = new Gas()
+            {
+                Id = gasDTO.Id,
+                Name = gasDTO.Name,
+                Address = gasDTO.Address,
+                Number_of_Pumps = gasDTO.Number_of_Pumps,
+                Price = gasDTO.Price,
+                Purity = gasDTO.Purity
+            };
+
+            _db.GasStations.Update(model);
+            _db.SaveChanges();
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
