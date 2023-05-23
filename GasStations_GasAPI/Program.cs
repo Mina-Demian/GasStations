@@ -6,9 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File("log/GasStationLogs.txt",rollingInterval:RollingInterval.Day).CreateLogger();
+//Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File("log/GasStationLogs.txt",rollingInterval:RollingInterval.Day).CreateLogger();
 
-builder.Host.UseSerilog();
+//builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 
 builder.Services.AddControllers(option =>
 {
-    option.ReturnHttpNotAcceptable = true;
+    //option.ReturnHttpNotAcceptable = true;
 }).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
