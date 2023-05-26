@@ -1,6 +1,7 @@
 ﻿using GasStations_GasAPI.Data;
 using GasStations_GasAPI.Models;
 using GasStations_GasAPI.Models.Dto;
+using GasStations_GasAPI.Services.GasStationService;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,48 +12,39 @@ namespace GasStations_GasAPI.Controllers
     [ApiController]
     public class GasAPIController : ControllerBase
     {
-
-        private readonly ApplicationDbContext _db;
-        private readonly ILogger<GasAPIController> _logger;
-        public GasAPIController(ApplicationDbContext db, ILogger<GasAPIController> logger)
+        private readonly IGasStationService _gasStationService;
+        public GasAPIController(IGasStationService gasStationService)
         {
-            _db = db;
-            _logger = logger;
+            _gasStationService = gasStationService;
         }
-
-
-        //public GasAPIController(ILogger<GasAPIController> logger)
-        //{
-        //    _logger = logger;
-        //}
-
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<GasDTO>>> GetGasStations()
+        public async Task<ActionResult<IEnumerable<Gas>>> GetGasStations()
         {
-            _logger.LogInformation("Getting all the Gas Stations");
-            return Ok(await _db.GasStations.ToListAsync());
+            var GasStations = await _gasStationService.GetGasStations();
+
+            return Ok(GasStations);
         }
 
         [HttpGet("{id:int}", Name = "GetGasStation")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GasDTO>> GetGasStation(int id)
+        public async Task<ActionResult<Gas>> GetGasStation(int id)
         {
+            var GasStation = await _gasStationService.GetGasStation(id);
+
             if (id == 0)
             {
-                _logger.LogError("Get Gas Station Error with ID of " + id);
                 return BadRequest();
             }
-            var GasStation = await _db.GasStations.FirstOrDefaultAsync(u => u.Id == id);
+
             if (GasStation == null)
             {
-                _logger.LogError("Getting a Gas Station Error with ID of null");
                 return NotFound();
             }
-            _logger.LogInformation("Getting Gas Station with ID of " + id);
+
             return Ok(GasStation);
         }
 
@@ -61,39 +53,20 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult <GasDTO>> CreateGasStation([FromBody] GasDTO gasDTO)
+        public async Task<ActionResult <Gas>> CreateGasStation([FromBody] GasDTO gasDTO)
         {
-            if (await _db.GasStations.FirstOrDefaultAsync(u => u.Name.ToLower() == gasDTO.Name.ToLower()) != null)
-            {
-                _logger.LogError("Creating a Gas Station Error with a Name that already exisits");
-                ModelState.AddModelError("CustomError", "Gas Station Already Exists in the Area!");
-                return BadRequest(ModelState);
-            }
+            var result = await _gasStationService.CreateGasStation(gasDTO);
+
             if (gasDTO == null)
             {
-                _logger.LogError("Creating a Gas Station Error that is null");
                 return BadRequest(gasDTO);
             }
+
             if (gasDTO.Id > 0)
             {
-                _logger.LogError("Creating a Gas Station Error with ID inputted by user");
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            Gas model = new()
-            {
-                Id = gasDTO.Id,
-                Name = gasDTO.Name,
-                Address = gasDTO.Address,
-                Number_of_Pumps = gasDTO.Number_of_Pumps,
-                Price = gasDTO.Price,
-                Purity = gasDTO.Purity
-            };
-
-            _db.GasStations.Add(model);
-            await _db.SaveChangesAsync();
-
-            _logger.LogInformation("Creating a Gas Station");
             return CreatedAtRoute("GetGasStation", new { id = gasDTO.Id }, gasDTO);
         }
 
@@ -103,20 +76,18 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGasStation(int id)
         {
+            var gasStation = await _gasStationService.DeleteGasStation(id);
+
             if (id == 0)
             {
-                _logger.LogError("Deleting a Gas Station Error with Id of 0");
                 return BadRequest();
             }
-            var gasStation = await _db.GasStations.FirstOrDefaultAsync(u => u.Id == id);
-            if (gasStation == null)
+
+            if (id == null)
             {
-                _logger.LogError("Deleting a Gas Station Error with Id that does not exist");
                 return NotFound();
             }
-            _db.GasStations.Remove(gasStation);
-            await _db.SaveChangesAsync();
-            _logger.LogInformation("Deleting a Gas Station");
+
             return NoContent();
         }
 
@@ -125,82 +96,36 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateGasStation(int id, [FromBody] GasDTO gasDTO)
         {
+            var result = await _gasStationService.UpdateGasStation(id, gasDTO);
+
             if (gasDTO == null || id != gasDTO.Id)
             {
-                _logger.LogError("Updating a Gas Station Error with a Gas Station that is null or with an Id that does not match the Id provided");
                 return BadRequest();
             }
 
-            Gas model = new()
-            {
-                Id = gasDTO.Id,
-                Name = gasDTO.Name,
-                Address = gasDTO.Address,
-                Number_of_Pumps = gasDTO.Number_of_Pumps,
-                Price = gasDTO.Price,
-                Purity = gasDTO.Purity
-            };
-
-            _db.GasStations.Update(model);
-            await _db.SaveChangesAsync();
-
-            _logger.LogInformation("Updating a Gas Station");
             return NoContent();
         }
 
-        [HttpPatch("{id:int}", Name = "UpdatePartialGasStation")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[HttpPatch("{id:int}", Name = "UpdatePartialGasStation")]
+        //[ProducesResponseType(StatusCodes.Status204NoContent)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public async Task<IActionResult> UpdatePartialGasStation(int id, JsonPatchDocument<GasDTO> patchDTO)
-        {
-            if (patchDTO == null || id == 0)
-            {
-                _logger.LogError("Partially Updating a Gas Station Error with a Gas Station that is null or an Id of 0");
-                return BadRequest();
-            }
+        //public async Task<IActionResult> UpdatePartialGasStation(int id, JsonPatchDocument<GasDTO> patchDTO)
+        //{
+        //    if (patchDTO == null || id == 0)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            var gasStation = await _db.GasStations.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-
-            GasDTO gasDTO = new()
-            {
-                Id = gasStation.Id,
-                Name = gasStation.Name,
-                Address = gasStation.Address,
-                Number_of_Pumps = gasStation.Number_of_Pumps,
-                Price = gasStation.Price,
-                Purity = gasStation.Purity
-            };
+        //    var gasStation = await _gasStationService.UpdateGasStation(id, patchDTO);
 
 
-            if (gasStation == null)
-            {
-                _logger.LogError("Partially updating a Gas Station Error that is null");
-                return BadRequest();
-            }
-            patchDTO.ApplyTo(gasDTO, ModelState);
+        //    if (gasStation == null)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            Gas model = new Gas()
-            {
-                Id = gasDTO.Id,
-                Name = gasDTO.Name,
-                Address = gasDTO.Address,
-                Number_of_Pumps = gasDTO.Number_of_Pumps,
-                Price = gasDTO.Price,
-                Purity = gasDTO.Purity
-            };
-
-            _db.GasStations.Update(model);
-            await _db.SaveChangesAsync();
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Partially updating a Gas Station Error with a ModelState that is invalid");
-                return BadRequest(ModelState);
-            }
-
-            _logger.LogInformation("Partially updating a Gas Station");
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
     }
 }
