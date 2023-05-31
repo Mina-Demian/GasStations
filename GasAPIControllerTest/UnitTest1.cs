@@ -51,17 +51,6 @@ namespace GasAPIControllerTest
             Assert.AreEqual(200, result.StatusCode);
         }
 
-        //[TestMethod]
-        //public void GetGasStations_Returns_Exception()
-        //{
-        //    _gasStationServiceMock.Setup(u => u.GetGasStations()).Throws(new Exception());
-
-        //    var actionResult = _controller.GetGasStations();
-        //    var result = actionResult as ObjectResult;
-
-        //    Assert.AreEqual(400, result.StatusCode);
-        //}
-
         /// <summary>
         /// GetGasStation() Unit Tests
         /// </summary>
