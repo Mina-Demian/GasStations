@@ -17,20 +17,20 @@ namespace GasStations_GasAPI.Services.GasStationService
             _db = db;
             _logger = logger;
         }
-        public async Task<ActionResult<IEnumerable<Gas>>> GetGasStations()
+        public List<Gas>GetGasStations()
         {
             _logger.LogInformation("Getting all the Gas Stations");
-            var GasStations = await _db.GasStations.ToListAsync();
+            var GasStations = _db.GasStations.ToList();
             return GasStations;
         }
 
-        public async Task<ActionResult<Gas>> GetGasStation(int id)
+        public Gas GetGasStation(int id)
         {
             if (id == 0)
             {
                 _logger.LogError("Get Gas Station Error with ID of " + id);
             }
-            var GasStation = await _db.GasStations.FirstOrDefaultAsync(u => u.Id == id);
+            var GasStation = _db.GasStations.FirstOrDefault(u => u.Id == id);
             if (GasStation == null)
             {
                 _logger.LogError("Getting a Gas Station Error with ID of null");
@@ -40,79 +40,85 @@ namespace GasStations_GasAPI.Services.GasStationService
             return GasStation;
         }
 
-        public async Task<ActionResult<Gas>> CreateGasStation([FromBody] GasDTO gasDTO)
+        public Gas CreateGasStation([FromBody] Gas gas)
         {
-            if (await _db.GasStations.FirstOrDefaultAsync(u => u.Name.ToLower() == gasDTO.Name.ToLower()) != null)
+            if (_db.GasStations.FirstOrDefault(u => u.Name.ToLower() == gas.Name.ToLower()) != null)
             {
                 _logger.LogError("Creating a Gas Station Error with a Name that already exisits");
             }
-            if (gasDTO == null)
+            if (gas == null)
             {
                 _logger.LogError("Creating a Gas Station Error that is null");
             }
-            if (gasDTO.Id > 0)
+            if (gas.Id > 0)
             {
                 _logger.LogError("Creating a Gas Station Error with ID inputted by user");
             }
 
             Gas model = new()
             {
-                Id = gasDTO.Id,
-                Name = gasDTO.Name,
-                Address = gasDTO.Address,
-                Number_of_Pumps = gasDTO.Number_of_Pumps,
-                Price = gasDTO.Price,
-                Purity = gasDTO.Purity
+                Id = gas.Id,
+                Name = gas.Name,
+                Address = gas.Address,
+                Number_of_Pumps = gas.Number_of_Pumps,
+                Price = gas.Price,
+                Purity = gas.Purity
             };
 
             _db.GasStations.Add(model);
-            await _db.SaveChangesAsync();
+            _db.SaveChanges();
 
             _logger.LogInformation("Creating a Gas Station");
             return model;
         }
 
-        public async Task<IActionResult> DeleteGasStation(int id)
+        public bool DeleteGasStation(int id)
         {
+            bool Deleted = false;
             if (id == 0)
             {
                 _logger.LogError("Deleting a Gas Station Error with Id of 0");
             }
 
-            var gasStation = await _db.GasStations.FirstOrDefaultAsync(u => u.Id == id);
+            var gasStation = _db.GasStations.FirstOrDefault(u => u.Id == id);
 
             if (gasStation == null)
             {
                 _logger.LogError("Deleting a Gas Station Error with Id that does not exist");
             }
+            
+            if (gasStation != null)
+            {
+                _db.GasStations.Remove(gasStation);
+                _db.SaveChanges();
 
-            _db.GasStations.Remove(gasStation);
-            await _db.SaveChangesAsync();
+                Deleted = true;
 
-            _logger.LogInformation("Deleting a Gas Station");
+                _logger.LogInformation("Deleting a Gas Station");
+            }
 
-            return null;
+            return Deleted;
         }
 
-        public async Task<IActionResult> UpdateGasStation(int id, [FromBody] GasDTO gasDTO)
+        public IActionResult UpdateGasStation(int id, [FromBody] Gas gas)
         {
-            if (gasDTO == null || id != gasDTO.Id)
+            if (gas == null || id != gas.Id)
             {
                 _logger.LogError("Updating a Gas Station Error with a Gas Station that is null or with an Id that does not match the Id provided");
             }
 
             Gas model = new()
             {
-                Id = gasDTO.Id,
-                Name = gasDTO.Name,
-                Address = gasDTO.Address,
-                Number_of_Pumps = gasDTO.Number_of_Pumps,
-                Price = gasDTO.Price,
-                Purity = gasDTO.Purity
+                Id = gas.Id,
+                Name = gas.Name,
+                Address = gas.Address,
+                Number_of_Pumps = gas.Number_of_Pumps,
+                Price = gas.Price,
+                Purity = gas.Purity
             };
 
             _db.GasStations.Update(model);
-            await _db.SaveChangesAsync();
+            _db.SaveChanges();
 
             _logger.LogInformation("Updating a Gas Station");
             return null;

@@ -7,11 +7,11 @@ namespace GasStations_GasAPI.Services.GasStationService
 {
     public interface IGasStationService
     {
-        Task<ActionResult<IEnumerable<Gas>>> GetGasStations();
-        Task<ActionResult<Gas>> GetGasStation(int id);
-        Task<ActionResult<Gas>> CreateGasStation([FromBody] GasDTO gasDTO);
-        Task<IActionResult> DeleteGasStation(int id);
-        Task<IActionResult> UpdateGasStation(int id, [FromBody] GasDTO gasDTO);
+        List<Gas> GetGasStations();
+        Gas GetGasStation(int id);
+        Gas CreateGasStation([FromBody] Gas gas);
+        bool DeleteGasStation(int id);
+        IActionResult UpdateGasStation(int id, [FromBody] Gas gas);
         //Task<IActionResult> UpdatePartialGasStation(int id, JsonPatchDocument<GasDTO> patchDTO);
     }
 }

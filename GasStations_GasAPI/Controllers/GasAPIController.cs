@@ -20,9 +20,9 @@ namespace GasStations_GasAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Gas>>> GetGasStations()
+        public IActionResult GetGasStations()
         {
-            var GasStations = await _gasStationService.GetGasStations();
+            var GasStations = _gasStationService.GetGasStations();
 
             return Ok(GasStations);
         }
@@ -31,9 +31,9 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Gas>> GetGasStation(int id)
+        public IActionResult GetGasStation(int id)
         {
-            var GasStation = await _gasStationService.GetGasStation(id);
+            var GasStation = _gasStationService.GetGasStation(id);
 
             if (id == 0)
             {
@@ -53,30 +53,30 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult <Gas>> CreateGasStation([FromBody] GasDTO gasDTO)
+        public IActionResult CreateGasStation([FromBody] Gas gas)
         {
-            var result = await _gasStationService.CreateGasStation(gasDTO);
+            var result = _gasStationService.CreateGasStation(gas);
 
-            if (gasDTO == null)
+            if (gas == null)
             {
-                return BadRequest(gasDTO);
+                return BadRequest(gas);
             }
 
-            if (gasDTO.Id > 0)
+            if (gas.Id > 0)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return CreatedAtRoute("GetGasStation", new { id = gasDTO.Id }, gasDTO);
+            return CreatedAtRoute("GetGasStation", new { id = gas.Id }, gas);
         }
 
         [HttpDelete("{id:int}", Name = "DeleteGasStation")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteGasStation(int id)
+        public IActionResult DeleteGasStation(int id)
         {
-            var gasStation = await _gasStationService.DeleteGasStation(id);
+            var gasStation = _gasStationService.DeleteGasStation(id);
 
             if (id == 0)
             {
@@ -89,16 +89,18 @@ namespace GasStations_GasAPI.Controllers
             }
 
             return NoContent();
+
+
         }
 
         [HttpPut("{id:int}", Name = "UpdateGasStation")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateGasStation(int id, [FromBody] GasDTO gasDTO)
+        public IActionResult UpdateGasStation(int id, [FromBody] Gas gas)
         {
-            var result = await _gasStationService.UpdateGasStation(id, gasDTO);
+            var result = _gasStationService.UpdateGasStation(id, gas);
 
-            if (gasDTO == null || id != gasDTO.Id)
+            if (gas == null || id != gas.Id)
             {
                 return BadRequest();
             }
