@@ -33,19 +33,21 @@ namespace GasStations_GasAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetGasStation(int id)
         {
+
             var GasStation = _gasStationService.GetGasStation(id);
-
-            if (id == 0)
-            {
-                return BadRequest();
-            }
-
             if (GasStation == null)
             {
                 return NotFound();
             }
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok(GasStation);
+            }
 
-            return Ok(GasStation);
         }
 
         [HttpPost]

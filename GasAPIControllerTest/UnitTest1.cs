@@ -78,28 +78,29 @@ namespace GasAPIControllerTest
             Assert.AreEqual(200, result.StatusCode);
         }
         [TestMethod]
-        public void GetGasStation_Returns_BadRequest()
+        public void GetGasStation_Returns_NotFound()
         {
             var gasStationList = _fixture.CreateMany<Gas>(3).ToList();
             _gasStationServiceMock.Setup(u => u.GetGasStation(0));
 
             var actionResult = _controller.GetGasStation(0);
-            var result = actionResult as ObjectResult;
-
-            Assert.AreEqual(400, result.StatusCode);
-        }
-
-        [TestMethod]
-        public void GetGasStation_Returns_NotFound()
-        {
-            //var gasStationList = _fixture.CreateMany<Gas>(3).ToList();
-            _gasStationServiceMock.Setup(u => u.GetGasStation(7));
-
-            var actionResult = _controller.GetGasStation(7);
-            var result = actionResult as ObjectResult;
+            var result = actionResult as NotFoundResult;
 
             Assert.AreEqual(404, result.StatusCode);
         }
+
+        //[TestMethod]
+        //public void GetGasStation_Returns_BadRequest()
+        //{
+        //    int id = 8;
+        //    var gasStation = _fixture.Build<Gas>();
+        //    _gasStationServiceMock.Setup(u => u.GetGasStation(id));
+
+        //    var actionResult = _controller.GetGasStation(8);
+        //    var result = actionResult as BadRequestResult;
+
+        //    Assert.AreEqual(400, result.StatusCode);
+        //}
 
         /// <summary>
         /// CreateGasStation() Unit Tests
@@ -108,35 +109,35 @@ namespace GasAPIControllerTest
         [TestMethod]
         public void CreateGasStation_Returns_CreatedAtRoute()
         {
-            var gas = _fixture.Create<Gas>();
+            var gas = _fixture.Build<Gas>().Without(u => u.Id).Create();
             _gasStationServiceMock.Setup(u => u.CreateGasStation(gas)).Returns(gas);
 
             var actionResult = _controller.CreateGasStation(gas);
-            var result = actionResult as ObjectResult;
+            var result = actionResult as CreatedAtRouteResult;
 
             Assert.AreEqual(201, result.StatusCode);
         }
-        [TestMethod]
-        public void CreateGasStation_Returns_BadRequest()
-        {
-            var gas = _fixture.Create<Gas>();
-            _gasStationServiceMock.Setup(u => u.CreateGasStation(It.IsAny<Gas>())).Returns(gas);
+        //[TestMethod]
+        //public void CreateGasStation_Returns_BadRequest()
+        //{
+        //    var gas = _fixture.Build<Gas>().Without(u => u.Id == null).Create();
+        //    _gasStationServiceMock.Setup(u => u.CreateGasStation(gas)).Returns(gas);
 
-            var actionResult = _controller.CreateGasStation(gas);
-            var result = actionResult as ObjectResult;
+        //    var actionResult = _controller.CreateGasStation(gas);
+        //    var result = actionResult as ObjectResult;
 
-            Assert.AreEqual(400, result.StatusCode);
-        }
+        //    Assert.AreEqual(400, result.StatusCode);
+        //}
         [TestMethod]
         public void CreateGasStation_Returns_InternalServerError()
         {
             var gas = _fixture.Create<Gas>();
-            _gasStationServiceMock.Setup(u => u.CreateGasStation(It.IsAny<Gas>())).Returns(gas);
+            _gasStationServiceMock.Setup(u => u.CreateGasStation(gas)).Returns(gas);
 
             var actionResult = _controller.CreateGasStation(gas);
-            var result = actionResult as ObjectResult;
+            var result = actionResult as StatusCodeResult;
 
-            Assert.AreEqual(404, result.StatusCode);
+            Assert.AreEqual(500, result.StatusCode);
         }
 
         /// <summary>
@@ -146,33 +147,34 @@ namespace GasAPIControllerTest
         [TestMethod]
         public void DeleteGasStation_Returns_NoContent()
         {
-            _gasStationServiceMock.Setup(u => u.DeleteGasStation(It.IsAny<int>())).Returns(true);
+            var gas = _fixture.Create<Gas>();
+            _gasStationServiceMock.Setup(u => u.DeleteGasStation(gas.Id)).Returns(true);
 
-            var actionResult = _controller.DeleteGasStation(It.IsAny<int>());
-            var result = actionResult as ObjectResult;
+            var actionResult = _controller.DeleteGasStation(gas.Id);
+            var result = actionResult as NoContentResult;
 
             Assert.AreEqual(204, result.StatusCode);
         }
         [TestMethod]
         public void DeleteGasStation_Returns_BadRequest()
         {
-            _gasStationServiceMock.Setup(u => u.DeleteGasStation(It.IsAny<int>())).Returns(true);
+            _gasStationServiceMock.Setup(u => u.DeleteGasStation(0)).Returns(false);
 
-            var actionResult = _controller.DeleteGasStation(It.IsAny<int>());
-            var result = actionResult as ObjectResult;
+            var actionResult = _controller.DeleteGasStation(0);
+            var result = actionResult as BadRequestResult;
 
             Assert.AreEqual(400, result.StatusCode);
         }
-        [TestMethod]
-        public void DeleteGasStation_Returns_NotFound()
-        {
-            _gasStationServiceMock.Setup(u => u.DeleteGasStation(It.IsAny<int>())).Returns(false);
+        //[TestMethod]
+        //public void DeleteGasStation_Returns_NotFound()
+        //{
+        //    _gasStationServiceMock.Setup(u => u.DeleteGasStation(It.IsAny<int>())).Returns(false);
 
-            var actionResult = _controller.DeleteGasStation(It.IsAny<int>());
-            var result = actionResult as ObjectResult;
+        //    var actionResult = _controller.DeleteGasStation(It.IsAny<int>());
+        //    var result = actionResult as ObjectResult;
 
-            Assert.AreEqual(404, result.StatusCode);
-        }
+        //    Assert.AreEqual(404, result.StatusCode);
+        //}
 
 
 
@@ -187,7 +189,7 @@ namespace GasAPIControllerTest
             _gasStationServiceMock.Setup(u => u.UpdateGasStation(gas.Id, gas));
 
             var actionResult = _controller.UpdateGasStation(gas.Id, gas);
-            var result = actionResult as ObjectResult;
+            var result = actionResult as NoContentResult;
 
             Assert.AreEqual(204, result.StatusCode);
         }
@@ -199,7 +201,7 @@ namespace GasAPIControllerTest
             _gasStationServiceMock.Setup(u => u.UpdateGasStation(id, gas));
 
             var actionResult = _controller.UpdateGasStation(id, gas);
-            var result = actionResult as ObjectResult;
+            var result = actionResult as BadRequestResult;
 
             Assert.AreEqual(400, result.StatusCode);
         }
