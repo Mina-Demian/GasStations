@@ -3,19 +3,6 @@ using GasStations_GasAPI.Controllers;
 using GasStations_GasAPI.Models;
 using GasStations_GasAPI.Services.GasStationService;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using FakeItEasy;
-//using FluentAssertions;
-//using GasStations_GasAPI.Controllers;
-//using GasStations_GasAPI.Models;
-//using GasStations_GasAPI.Services.GasStationService;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Http.HttpResults;
-//using Microsoft.AspNetCore.Mvc;
 using Moq;
 
 namespace GasAPIControllerTest
@@ -81,11 +68,10 @@ namespace GasAPIControllerTest
         //[TestMethod]
         //public void GetGasStation_Returns_BadRequest()
         //{
-        //    int id = 8;
-        //    var gasStation = _fixture.Build<Gas>();
-        //    _gasStationServiceMock.Setup(u => u.GetGasStation(id));
+        //    var gas = _fixture.Build<Gas>().With(u => u.Id, null).Create();
+        //    _gasStationServiceMock.Setup(u => u.GetGasStation(gas.Id));
 
-        //    var actionResult = _controller.GetGasStation(8);
+        //    var actionResult = _controller.GetGasStation(gas.Id);
         //    var result = actionResult as BadRequestResult;
 
         //    Assert.AreEqual(400, result.StatusCode);
@@ -160,7 +146,7 @@ namespace GasAPIControllerTest
         //    _gasStationServiceMock.Setup(u => u.DeleteGasStation(It.IsAny<int>())).Returns(false);
 
         //    var actionResult = _controller.DeleteGasStation(It.IsAny<int>());
-        //    var result = actionResult as ObjectResult;
+        //    var result = actionResult as NotFoundResult;
 
         //    Assert.AreEqual(404, result.StatusCode);
         //}

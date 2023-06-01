@@ -1,5 +1,8 @@
 using GasStations_GasAPI.Data;
+using GasStations_GasAPI.Handlers;
 using GasStations_GasAPI.Services.GasStationService;
+using GasStations_GasAPI.Services.UserService;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -8,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddScoped<IGasStationService, GasStationService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File("log/GasStationLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
 
@@ -26,6 +31,9 @@ builder.Services.AddControllers(option =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -36,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

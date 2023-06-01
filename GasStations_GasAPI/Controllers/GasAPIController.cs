@@ -2,6 +2,7 @@
 using GasStations_GasAPI.Models;
 using GasStations_GasAPI.Models.Dto;
 using GasStations_GasAPI.Services.GasStationService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace GasStations_GasAPI.Controllers
             _gasStationService = gasStationService;
         }
 
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetGasStations()
