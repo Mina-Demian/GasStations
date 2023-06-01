@@ -19,7 +19,7 @@ namespace GasStations_GasAPI.Controllers
             _gasStationService = gasStationService;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetGasStations()

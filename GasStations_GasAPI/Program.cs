@@ -1,5 +1,6 @@
 using GasStations_GasAPI.Data;
 using GasStations_GasAPI.Handlers;
+using GasStations_GasAPI.Middleware;
 using GasStations_GasAPI.Services.GasStationService;
 using GasStations_GasAPI.Services.UserService;
 using Microsoft.AspNetCore.Authentication;
@@ -31,8 +32,8 @@ builder.Services.AddControllers(option =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+//builder.Services.AddAuthentication("BasicAuthentication")
+//    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 var app = builder.Build();
 
@@ -43,9 +44,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//app.MapWhen(context => context.Request.Path.Equals("/api/GasAPI"), app => app.UseMiddleware<BasicAuthHandler>("Test"));
+
+app.UseMiddleware<BasicAuthHandler>("Test");
+
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+//app.UseAuthentication();
 
 app.UseAuthorization();
 
