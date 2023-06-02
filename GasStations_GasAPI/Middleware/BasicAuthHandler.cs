@@ -5,13 +5,13 @@ namespace GasStations_GasAPI.Middleware
 {
     public class BasicAuthHandler
     {
-        private readonly RequestDelegate next;
-        private readonly string relm;
+        private readonly RequestDelegate _next;
+        private readonly string _relm;
 
         public BasicAuthHandler(RequestDelegate next, string relm)
         {
-            this.next = next;
-            this.relm = relm;
+            _next = next;
+            _relm = relm;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -19,7 +19,7 @@ namespace GasStations_GasAPI.Middleware
             if (!context.Request.Headers.ContainsKey("Authorization"))
             {
                 context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Unauthorized");
+                await context.Response.WriteAsync("Unauthorized: Does not contain authorization header");
                 return;
             }
 
@@ -35,11 +35,11 @@ namespace GasStations_GasAPI.Middleware
             if(emailAddress != "Tester" || password != "Pass")
             {
                 context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Unauthorized");
+                await context.Response.WriteAsync("Unauthorized: Invalid Email Address or Password");
                 return;
             }
 
-            await next(context);
+            await _next(context);
 
         }
     }

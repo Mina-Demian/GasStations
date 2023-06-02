@@ -25,5 +25,15 @@ namespace GasStations_GasAPI.Services.UserService
             }
             return false;
         }
+
+        public User GetById(int id)
+        {
+            var user = _users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+            return user;
+        }
     }
 }
