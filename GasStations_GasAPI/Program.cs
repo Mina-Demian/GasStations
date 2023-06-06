@@ -1,10 +1,10 @@
 using GasStations_GasAPI.Data;
 using GasStations_GasAPI.Handlers;
-using GasStations_GasAPI.JWTAuthorization;
+//using GasStations_GasAPI.JWTAuthorization;
 using GasStations_GasAPI.Middleware;
 using GasStations_GasAPI.Models;
-using GasStations_GasAPI.Models.API_Key.Service;
-using GasStations_GasAPI.Models.API_Key;
+//using GasStations_GasAPI.Models.API_Key.Service;
+//using GasStations_GasAPI.Models.API_Key;
 using GasStations_GasAPI.Services.GasStationService;
 using GasStations_GasAPI.Services.UserService;
 using Microsoft.AspNetCore.Authentication;
@@ -41,7 +41,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IGasStationService, GasStationService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IJwtUtils, JwtUtils>();
+//builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File("log/GasStationLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
