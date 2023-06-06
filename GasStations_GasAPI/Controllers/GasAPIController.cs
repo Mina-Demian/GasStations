@@ -1,17 +1,22 @@
 ﻿using GasStations_GasAPI.Data;
 using GasStations_GasAPI.Handlers;
 using GasStations_GasAPI.Models;
+//using GasStations_GasAPI.Models.API_Key;
 using GasStations_GasAPI.Models.Dto;
 using GasStations_GasAPI.Services.GasStationService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace GasStations_GasAPI.Controllers
@@ -20,61 +25,20 @@ namespace GasStations_GasAPI.Controllers
     [ApiController]
     public class GasAPIController : ControllerBase
     {
+        //public static Users user = new Users();
+
         private readonly IGasStationService _gasStationService;
-        private readonly IConfiguration _config;
-        public GasAPIController(IGasStationService gasStationService, IConfiguration config)
+        //private readonly IConfiguration _config;
+        //private readonly TokenValidationParameters _tokenValidationParameters;
+        public GasAPIController(IGasStationService gasStationService)//, IConfiguration config)//, TokenValidationParameters tokenValidationParameters)
         {
             _gasStationService = gasStationService;
-            _config = config;
+            //_config = config;
+            //_tokenValidationParameters = tokenValidationParameters;
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("Login")]
-        public ActionResult Login([FromBody] UsersLogin usersLogin)
-        {
-            var user = Authenticate(usersLogin);
-            if (user != null)
-            {
-                var token = GenerateToken(user);
-                return Ok(token);
-            }
-
-            return NotFound("User Not Found");
-        }
-
-        private string GenerateToken(Users users)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier,users.Username),
-                new Claim(ClaimTypes.Role,users.Role)
-            };
-            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: credentials);
-
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-
-        }
-
-        private Users Authenticate(UsersLogin usersLogin)
-        {
-            var currentUser = UsersList.Users.FirstOrDefault(u => u.Username.ToLower() == usersLogin.Username.ToLower() && u.Password == usersLogin.Password);
-            if (currentUser != null)
-            {
-                return currentUser;
-            }
-            return null;
-        }
-
-
-        [Authorize(Policy = "Basic Authentication")]
+        //[Authorize(Policy = "Level1")]
+        [Authorize(AuthenticationSchemes = "BasicAuthentication")]
         //[Authorize(AuthenticationSchemes = "Basic Authentication")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -85,6 +49,7 @@ namespace GasStations_GasAPI.Controllers
             return Ok(GasStations);
         }
 
+        [Authorize(Policy = "Level1")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{id:int}", Name = "GetGasStation")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -109,6 +74,7 @@ namespace GasStations_GasAPI.Controllers
 
         }
 
+        [Authorize(Policy = "Level2")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +97,7 @@ namespace GasStations_GasAPI.Controllers
             return CreatedAtRoute("GetGasStation", new { id = gas.Id }, gas);
         }
 
+        [Authorize(Policy = "Level3")]
         [HttpDelete("{id:int}", Name = "DeleteGasStation")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -154,7 +121,9 @@ namespace GasStations_GasAPI.Controllers
 
         }
 
-        [Authorize(Policy = "JWT Bearer Authentication")]
+        [Authorize(Policy = "Level2")]
+        [Authorize(AuthenticationSchemes = "Jwt")]
+        //[Authorize(Policy = "JWT Bearer Authentication")]
         [HttpPut("{id:int}", Name = "UpdateGasStation")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

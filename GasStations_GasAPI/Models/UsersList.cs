@@ -6,9 +6,21 @@
         {
             new Users()
             {
-                Username = "Testing",
-                Password = "Testing10",
+                Username = "Test1",
+                Password = "Pass1",
+                Role = "Employee"
+            },
+             new Users()
+            {
+                Username = "Test2",
+                Password = "Pass2",
                 Role = "Admin"
+            },
+              new Users()
+            {
+                Username = "Test3",
+                Password = "Pass3",
+                Role = "Manager"
             }
         };
     }
