@@ -82,7 +82,7 @@ namespace GasStations_GasAPI.Services.AuthTokenService
     //    //    return refreshToken; 
     //    //}
 
-    //    public static string CreateRefreshToken()
+    //    public string CreateRefreshToken()
     //    {
     //        var randomNumber = new byte[64];
     //        using var rng = RandomNumberGenerator.Create();
@@ -90,22 +90,22 @@ namespace GasStations_GasAPI.Services.AuthTokenService
     //        return Convert.ToBase64String(randomNumber);
     //    }
 
-    //    public void SetRefreshToken(RefreshToken newRefreshToken)
+    //public void SetRefreshToken(RefreshToken newRefreshToken)
+    //{
+    //    var cookieOptions = new CookieOptions
     //    {
-    //        var cookieOptions = new CookieOptions
-    //        {
-    //            HttpOnly = true,
-    //            Expires = newRefreshToken.ExpiryDate
-    //        };
+    //        HttpOnly = true,
+    //        Expires = newRefreshToken.ExpiryDate
+    //    };
 
-    //        Response.Cookies.Append("RefreshToken", newRefreshToken.Token, cookieOptions);
+    //    Response.Cookies.Append("RefreshToken", newRefreshToken.Token, cookieOptions);
 
-    //        user.RefreshToken = newRefreshToken.Token;
-    //        user.TokenCreated = newRefreshToken.AddedDate;
-    //        user.TokenExpired = newRefreshToken.ExpiryDate;
-    //        user.Username = newRefreshToken.Username;
-    //        user.Role = newRefreshToken.Role;
-    //    }
+    //    user.RefreshToken = newRefreshToken.Token;
+    //    user.TokenCreated = newRefreshToken.AddedDate;
+    //    user.TokenExpired = newRefreshToken.ExpiryDate;
+    //    user.Username = newRefreshToken.Username;
+    //    user.Role = newRefreshToken.Role;
+    //}
 
     //    public Users Authenticate(UsersLogin usersLogin)
     //    {
@@ -117,18 +117,19 @@ namespace GasStations_GasAPI.Services.AuthTokenService
     //        return null;
     //    }
 
-    //    private ActionResult ValidateRefreshToken()
+    //public ActionResult ValidateRefreshToken()
+    //{
+    //    var refreshTokens = Request.Cookies["RefreshToken"];//HttpRequest.Cookies["RefreshToken"];
+    //    if (!user.RefreshToken.Equals(refreshTokens))
     //    {
-    //        var refreshTokens = Request.Cookies["RefreshToken"];
-    //        if (!user.RefreshToken.Equals(refreshTokens))
-    //        {
-    //            return Unauthorized("Invalid Refresh Token");
-    //        }
-    //        else if (user.TokenExpired < DateTime.Now)
-    //        {
-    //            return Unauthorized("Token Expired");
-    //        }
-    //        return Ok("Refresh Token is Valid");
+    //        return Unauthorized("Invalid Refresh Token");
+    //        //return Unauthorized
     //    }
+    //    else if (user.TokenExpired < DateTime.Now)
+    //    {
+    //        return Unauthorized("Token Expired");
+    //    }
+    //    return Ok("Refresh Token is Valid");
+    //}
     //}
 }

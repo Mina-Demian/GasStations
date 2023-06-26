@@ -63,7 +63,7 @@ namespace GasStations_GasAPI.Controllers
                 _config["Jwt:Audience"],
                 claims: authClaims,
                 //(IEnumerable<Claim>)Subject,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(1),//
                 signingCredentials: credentials);
 
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
@@ -72,7 +72,7 @@ namespace GasStations_GasAPI.Controllers
             {
                 Token = CreateRefreshToken(),
                 AddedDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddDays(7),
+                ExpiryDate = DateTime.UtcNow.AddMinutes(2),//
                 Username = users.Username,
                 Role = users.Role
             };
@@ -118,7 +118,7 @@ namespace GasStations_GasAPI.Controllers
                 Expires = newRefreshToken.ExpiryDate
             };
 
-            Response.Cookies.Append("RefreshToken", newRefreshToken.Token, cookieOptions);
+            //Response.Cookies.Append("RefreshToken", newRefreshToken.Token, cookieOptions);
 
             user.RefreshToken = newRefreshToken.Token;
             user.TokenCreated = newRefreshToken.AddedDate;
@@ -176,6 +176,30 @@ namespace GasStations_GasAPI.Controllers
             }
             return Ok("Refresh Token is Valid");
         }
+
+        /*-------------------------------------------------------------------------------------------------------------*/
+
+        [HttpPost]
+        [Route("RefreshToken2")]
+        public ActionResult RefreshToken2(RefreshTokenRequest refreshTokenRequest)
+        {
+            var refreshToken = refreshTokenRequest.RefreshToken;
+            //var refreshTokenEqual = user.RefreshToken.Equals(refreshToken);
+            //var refreshTokenEqual2 = user.RefreshToken == refreshToken;
+            if (!user.RefreshToken.Equals(refreshToken))
+            {
+                return Unauthorized("Invalid Refresh Token");
+            }
+            else if (user.TokenExpired < DateTime.UtcNow)
+            {
+                return Unauthorized("Token Expired");
+            }
+
+            var newTokens = GenerateToken(user);
+            return Ok(newTokens);
+
+        }
+
 
     }
 }

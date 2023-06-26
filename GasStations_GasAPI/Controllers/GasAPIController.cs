@@ -37,8 +37,8 @@ namespace GasStations_GasAPI.Controllers
             //_tokenValidationParameters = tokenValidationParameters;
         }
 
-        //[Authorize(Policy = "Level1")]
-        [Authorize(AuthenticationSchemes = "BasicAuthentication")]
+        [Authorize(Policy = "Level1")]
+        //[Authorize(AuthenticationSchemes = "BasicAuthentication")]
         //[Authorize(AuthenticationSchemes = "Basic Authentication")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

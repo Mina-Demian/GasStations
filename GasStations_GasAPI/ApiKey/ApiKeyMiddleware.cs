@@ -4,8 +4,7 @@
     {
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
-        private
-        const string APIKEY = "x-api-key";
+        private const string APIKEY = "x-api-key";
         public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
