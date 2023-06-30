@@ -40,6 +40,31 @@ namespace GasStations_GasAPI.Services.GasStationService
             return GasStation;
         }
 
+        /*------------------------------------------------------------------------------*/
+
+        public List<Gas> GetGasStationsByCityandCountryId(int CityId, int CountryofOriginId)
+        {
+            if (CityId == 0)
+            {
+                _logger.LogError("Get Gas Stations Error with ID of " + CityId);
+            }
+
+            if (CountryofOriginId == 0)
+            {
+                _logger.LogError("Get Gas Station Errors with ID of " + CountryofOriginId);
+            }
+
+            var GasStations = _db.GasStations.Where(u => u.CityId == CityId && u.CountryofOriginId == CountryofOriginId).ToList();
+            if (GasStations == null)
+            {
+                _logger.LogError("Getting a Gas Station Error with ID of null");
+                return null;
+            }
+            _logger.LogInformation("Getting Gas Station with CityId of " + CityId + " & CountryofOriginId of " + CountryofOriginId);
+            return GasStations;
+        }
+
+        /*------------------------------------------------------------------------------*/
         public Gas CreateGasStation([FromBody] Gas gas)
         {
             if (_db.GasStations.FirstOrDefault(u => u.Name.ToLower() == gas.Name.ToLower()) != null)
@@ -62,7 +87,9 @@ namespace GasStations_GasAPI.Services.GasStationService
                 Address = gas.Address,
                 Number_of_Pumps = gas.Number_of_Pumps,
                 Price = gas.Price,
-                Purity = gas.Purity
+                Purity = gas.Purity,
+                CityId = gas.CityId,
+                CountryofOriginId = gas.CountryofOriginId
             };
 
             _db.GasStations.Add(model);
@@ -107,6 +134,7 @@ namespace GasStations_GasAPI.Services.GasStationService
                 _logger.LogError("Updating a Gas Station Error with a Gas Station that is null or with an Id that does not match the Id provided");
             }
 
+            
             Gas model = new()
             {
                 Id = gas.Id,
@@ -115,9 +143,40 @@ namespace GasStations_GasAPI.Services.GasStationService
                 Number_of_Pumps = gas.Number_of_Pumps,
                 Price = gas.Price,
                 Purity = gas.Purity
+                //CityId = gas.CityId,
+                //CountryofOriginId = gas.CountryofOriginId
             };
 
             _db.GasStations.Update(model);
+            
+            
+            /*
+            // Retrieve the existing gas station record from the database
+            var existingGas = _db.GasStations.Find(id);
+
+            
+            if (existingGas == null)
+            {
+                _logger.LogError("Updating a Gas Station Error with a Gas Station that is not in the Database");
+            }
+
+            _db.Entry(existingGas).CurrentValues.SetValues(gas);
+
+            // Exclude the navigation properties (City and Country) from being marked as modified
+            _db.Entry(existingGas).Property(x => x.City).IsModified = false;
+            _db.Entry(existingGas).Property(x => x.CountryofOrigin).IsModified = false;
+
+            
+            // Update the properties of the existing gas station with the new values
+            existingGas.Name = gas.Name;
+            existingGas.Address = gas.Address;
+            existingGas.Number_of_Pumps = gas.Number_of_Pumps;
+            existingGas.Price = gas.Price;
+            existingGas.Purity = gas.Purity;
+            existingGas.CityId = gas.CityId; // Update CityId
+            existingGas.CountryofOriginId = gas.CountryofOriginId; // Update CountryofOriginId
+            */
+
             _db.SaveChanges();
 
             _logger.LogInformation("Updating a Gas Station");

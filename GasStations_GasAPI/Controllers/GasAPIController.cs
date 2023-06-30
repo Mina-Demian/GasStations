@@ -74,6 +74,36 @@ namespace GasStations_GasAPI.Controllers
 
         }
 
+        [Authorize(Policy = "Level1")]
+        //[Authorize(AuthenticationSchemes = "BasicAuthentication")]
+        //[Authorize(AuthenticationSchemes = "Basic Authentication")]
+        [HttpGet("{CityId:int}/{CountryofOriginId:int}", Name = "GetGasStationsByCityandCountryId")]
+        //[Route("GetGasStationsByCityandCountryId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetGasStationsByCityandCountryId(int CityId, int CountryofOriginId)
+        {
+            var GasStations = _gasStationService.GetGasStationsByCityandCountryId(CityId, CountryofOriginId);
+
+            if (CityId == 0)
+            {
+                return BadRequest(CityId);
+            }
+
+            if (CountryofOriginId == 0)
+            {
+                return BadRequest(CountryofOriginId);
+            }
+
+            if (GasStations == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(GasStations);
+        }
+
         [Authorize(Policy = "Level2")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]

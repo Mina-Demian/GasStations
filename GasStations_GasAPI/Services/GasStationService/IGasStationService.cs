@@ -9,6 +9,7 @@ namespace GasStations_GasAPI.Services.GasStationService
     {
         List<Gas> GetGasStations();
         Gas GetGasStation(int id);
+        List<Gas> GetGasStationsByCityandCountryId(int CityId, int CountryofOriginId);
         Gas CreateGasStation([FromBody] Gas gas);
         bool DeleteGasStation(int id);
         IActionResult UpdateGasStation(int id, [FromBody] Gas gas);

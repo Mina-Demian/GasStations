@@ -16,5 +16,11 @@ namespace GasStations_GasAPI.Models
 
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set;}
+
+        public int? CityId { get; set; }
+        public City City { get; set; }
+
+        public int? CountryofOriginId { get; set; }
+        public Country CountryofOrigin { get; set; }
     }
 }
